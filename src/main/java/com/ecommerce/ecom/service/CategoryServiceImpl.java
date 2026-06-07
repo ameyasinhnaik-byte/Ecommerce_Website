@@ -16,8 +16,12 @@ public class CategoryServiceImpl implements CategoryService{
 //    private List<Category> categories = new ArrayList<>();
 //    private Long nextId = 1L;
 
+    private final CategoryRepository categoryRepository;
+
     @Autowired
-    private CategoryRepository categoryRepository;
+    public CategoryServiceImpl(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
 
     @Override
     public List<Category> getAllCategories() {
