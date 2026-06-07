@@ -1,13 +1,11 @@
 package com.ecommerce.ecom.service;
 
+import com.ecommerce.ecom.exceptions.ApiException;
+import com.ecommerce.ecom.exceptions.ResourceNotFoundException;
 import com.ecommerce.ecom.model.Category;
 import com.ecommerce.ecom.repositories.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,40 +23,28 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Override
     public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAll();
+        if (categories.isEmpty()) {
+            throw new ApiException("Categories not added yet");
+        }
+
+        return categories;
     }
 
     @Override
-    public Status createCategory(Category category) {
-        if (category.getCategoryName() == null || category.getCategoryName().isEmpty()) {
-            return new Status(HttpStatus.BAD_REQUEST, "Failed to create category");
+    public void createCategory(Category category) {
+        Category savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
+        if (savedCategory != null) {
+            throw new ApiException("Category with the name: " + category.getCategoryName() + " already exists");
         }
-
-        for (Category category1 : categoryRepository.findAll()) {
-            if (category.getCategoryName().equalsIgnoreCase(category1.getCategoryName())) {
-                return new Status(HttpStatus.CONFLICT, "Category already exists");
-            }
-        }
-//        category.setCategoryId(nextId++);
-
         categoryRepository.save(category);
-        return new Status(HttpStatus.CREATED, "Category created successfully");
     }
 
     @Override
     public String deleteCategory(Long categoryId) {
-//        List<Category> categories = categoryRepository.findAll();
-//
-//        Category category = categories.stream()
-//                .filter(c -> c.getCategoryId().equals(categoryId))
-//                .findFirst()
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
-//
-//        categoryRepository.delete(category);
-
         Optional<Category> category = categoryRepository.findById(categoryId);
         Category category1 = category
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
         categoryRepository.delete(category1);
 
@@ -69,15 +55,34 @@ public class CategoryServiceImpl implements CategoryService{
     public String updateCategory(Long categoryId, Category category) {
         Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
         Category category1 = categoryOptional
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+
+        Category savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
+        if (savedCategory != null) {
+            throw new ApiException("Category with the name: " + category.getCategoryName() + " already exists");
+        }
 
         category1.setCategoryName(category.getCategoryName());
         categoryRepository.save(category1);
         return "Category with id: " + categoryId + " successfully updated";
+    }
+}
 
+
+
+//@Override
+//public String updateCategory(Long categoryId, Category category) {
 //        List<Category> categories = categoryRepository.findAll();
 
-        //approach 2 to update
+    //approach 1 to update
+//        for (int i = 0; i < categories.size(); i++) {
+//            if (categories.get(i).getCategoryId().equals(categoryId)) {
+//                categories.get(i).setCategoryName(category.getCategoryName());
+//                return new Status(HttpStatus.OK, "Category with id: " + categoryId + " successfully updated");
+//            }
+//        }
+
+    //approach 2 to update
 //        Optional<Category> optionalCategory = categories
 //                .stream()
 //                .filter(c -> c.getCategoryId().equals(categoryId))
@@ -89,14 +94,17 @@ public class CategoryServiceImpl implements CategoryService{
 //            categoryRepository.save(category1);
 //            return new Status(HttpStatus.OK, "Category with id: " + categoryId + " successfully updated");
 //        }
+//}
 
-        //approach 1 to update
-//        for (int i = 0; i < categories.size(); i++) {
-//            if (categories.get(i).getCategoryId().equals(categoryId)) {
-//                categories.get(i).setCategoryName(category.getCategoryName());
-//                return new Status(HttpStatus.OK, "Category with id: " + categoryId + " successfully updated");
-//            }
-//        }
 
-    }
-}
+//@Override
+//public String deleteCategory(Long categoryId) {
+//        List<Category> categories = categoryRepository.findAll();
+//
+//        Category category = categories.stream()
+//                .filter(c -> c.getCategoryId().equals(categoryId))
+//                .findFirst()
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+//
+//        categoryRepository.delete(category);
+//}
