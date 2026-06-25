@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Service // This class should be registered as a bean and is also providing
+         // business services, hence @Service is used
 public class CategoryServiceImpl implements CategoryService{
 //    private List<Category> categories = new ArrayList<>();
 //    private Long nextId = 1L;
@@ -35,7 +36,7 @@ public class CategoryServiceImpl implements CategoryService{
     public void createCategory(Category category) {
         Category savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
         if (savedCategory != null) {
-            throw new ApiException("Category with the name: " + category.getCategoryName() + " already exists");
+            throw new ApiException("Category with the name '" + category.getCategoryName() + "' already exists");
         }
         categoryRepository.save(category);
     }
@@ -59,7 +60,7 @@ public class CategoryServiceImpl implements CategoryService{
 
         Category savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
         if (savedCategory != null) {
-            throw new ApiException("Category with the name: " + category.getCategoryName() + " already exists");
+            throw new ApiException("Category with the name '" + category.getCategoryName() + "' already exists");
         }
 
         category1.setCategoryName(category.getCategoryName());

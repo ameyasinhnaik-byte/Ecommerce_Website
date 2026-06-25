@@ -17,24 +17,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> myMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         Map<String, String> map = new HashMap<>();
 
-        e.getBindingResult().getAllErrors().forEach(err -> {
-           String fieldName = ((FieldError)err).getField();
+        e.getBindingResult().getFieldErrors().forEach(err -> {
+           String fieldName = err.getField();
            String message = err.getDefaultMessage();
            map.put(fieldName, message);
         });
 
         return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<String> myDataIntegrityViolationException(DataIntegrityViolationException e) {
-        String rootMessage = e.getMostSpecificCause().getMessage();
-
-        if (rootMessage.contains("CATEGORY_NAME")) {
-            return new ResponseEntity<>("categoryName already taken", HttpStatus.CONFLICT);
-        }
-
-        return new ResponseEntity<>(rootMessage, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
