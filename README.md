@@ -98,8 +98,8 @@ Full CRUD functionality for managing product categories, with endpoints split in
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
-cd <project-folder>
+git clone https://github.com/ameyasinhnaik-byte/Ecommerce_Website.git
+cd Ecommerce_Website
 
 # Run the application
 mvn spring-boot:run
